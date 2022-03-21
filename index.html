@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>채팅방</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <link rel="stylesheet" href="/style/style.css">
+</head>
+<body>
+    <h3>34ruby Chat</h3>
+    <div id = "app">
+        <ul id="chatbox">
+            <li v-for="message in messages">
+                {{ message }}
+            </li>
+        </ul>
+        <form @submit.prevent="sendMessage">
+            <input type="text" placeholder="메세지 입력!" v-model:value="message" />
+            <input type="submit" value="Send" />
+        </form>
+    </div>
+    <script>
+        var Socket = null;
+        var app = new Vue({
+            el: '#app',
+            data: {
+                message: '',
+                messages:[]
+            },
+            methods: {
+                sendMessage: function() {
+                    socket.emit('message', this.message);
+                    // console.log(this.message)
+                    this.message = ''
+                }
+            },
+            created: function() {
+                socket = io();
+            },
+            mounted: function() {
+                socket.on('message', function (message) {
+                    app.messages.push(message)
+                    app.$nextTick(function () {
+                        var messageBox = document.getElementById('chatbox');
+                        messageBox.scrollTop = messageBox.scrollHeight;
+                    })
+                })
+            }
+        })
+    </script>
+</body>
+</html>
